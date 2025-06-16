@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import AskBubble from './components/AskBubble';
 import AnswerBubble from './components/AnswerBubble';
 
-
 type ChatItem = {
   type: 'user' | 'bot';
   text: string;
 };
+
+// ✅ .env에 설정된 주소를 불러옴 (없으면 로컬 주소 사용)
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
 function App() {
   const [input, setInput] = useState('');
@@ -31,7 +33,7 @@ function App() {
     setInput('');
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/ask', {
+      const response = await fetch(`${API_URL}/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,10 +42,16 @@ function App() {
       });
 
       const data = await response.json();
-      const botMessage: ChatItem = { type: 'bot', text: data.answer || data.detail || '응답이 없습니다.' };
+      const botMessage: ChatItem = {
+        type: 'bot',
+        text: data.answer || data.detail || '응답이 없습니다.',
+      };
       setChat((prev) => [...prev, botMessage]);
     } catch (error) {
-      const errorMessage: ChatItem = { type: 'bot', text: '에러가 발생했습니다. 다시 시도해주세요.' };
+      const errorMessage: ChatItem = {
+        type: 'bot',
+        text: '에러가 발생했습니다. 다시 시도해주세요.',
+      };
       setChat((prev) => [...prev, errorMessage]);
     }
   };
@@ -83,7 +91,6 @@ function App() {
   );
 }
 
-// ✅ 인라인 스타일 구조
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: 'flex',
